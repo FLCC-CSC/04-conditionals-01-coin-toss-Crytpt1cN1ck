@@ -1,0 +1,47 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Test Case 02 [Tails]
+      id: test-case-02-tails
+      uses: classroom-resources/autograding-python-grader@v1
+      with:
+        timeout: 10
+        max-score: 4
+        setup-command: apt-get update && apt-get install -y curl && curl "https://gist.githubusercontent.com/johnghidiuflcc/ef785ffaa42eaf70bdc6968908130c9d/raw"
+          -o test_01.py
+    - name: Test Case 01 [Tails]
+      id: test-case-01-tails
+      uses: classroom-resources/autograding-python-grader@v1
+      with:
+        timeout: 10
+        max-score: 4
+        setup-command: apt-get update && apt-get install -y curl && curl "https://gist.githubusercontent.com/johnghidiuflcc/ef785ffaa42eaf70bdc6968908130c9d/raw"
+          -o test_01.py
+    - name: Test Case 03 [Header]
+      id: test-case-03-header
+      uses: classroom-resources/autograding-python-grader@v1
+      with:
+        timeout: 10
+        max-score: 2
+        setup-command: apt-get update && apt-get install -y curl && curl "https://gist.githubusercontent.com/johnghidiuflcc/2f32b5218ecf6e3115f79164e3d2ad5b/raw"
+          -o test_01.py
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-CASE-02-TAILS_RESULTS: "${{steps.test-case-02-tails.outputs.result}}"
+        TEST-CASE-01-TAILS_RESULTS: "${{steps.test-case-01-tails.outputs.result}}"
+        TEST-CASE-03-HEADER_RESULTS: "${{steps.test-case-03-header.outputs.result}}"
+      with:
+        runners: test-case-02-tails,test-case-01-tails,test-case-03-header
